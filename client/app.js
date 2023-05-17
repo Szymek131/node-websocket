@@ -1,3 +1,5 @@
+const socket = io();
+
 let userName = '';
 const loginForm = document.querySelector("#welcome-form");
 const messagesSection = document.querySelector("#messages-section");
@@ -6,6 +8,8 @@ const addMessageForm = document.querySelector("#add-messages-form");
 const userNameInput = document.querySelector("#username");
 const messageContentInput = document.querySelector("#message-content");
 
+socket.on('message', ({ author, content }) => addMessage(author, content));
+
 loginForm.addEventListener('submit', function login(e) {
   e.preventDefault();
 
@@ -13,6 +17,7 @@ loginForm.addEventListener('submit', function login(e) {
     userName = userNameInput.value;
     loginForm.classList.remove('show');
     messagesSection.classList.add('show');
+    socket.emit('join', { author: userName });
   } else {
     alert('your login seems incorrect');
   }
@@ -36,6 +41,7 @@ addMessageForm.addEventListener('submit', function sendMessage(e) {
   e.preventDefault();
   if (messageContentInput.value.length > 0) {
     addMessage(userName, messageContentInput.value);
+    socket.emit('message', { author: userName, content: messageContentInput.value })
     messageContentInput.value = '';
   } else {
     alert('seems that your message is incorrect');
